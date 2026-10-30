@@ -39,7 +39,8 @@ Not one issue. Fixing the parser closes only the <code>parser</code> row below; 
   `desk-notes.json`: "Tuesday 12 May. Calendar says Monday 11 May", "Client in Lisbon got Tuesday.
   Client in Toronto got Monday.", "Every booking in June is one day off." No day/month swap does
   that. Our best guess is time zones; one report ("the invite arrived before I made the booking")
-  fits that only loosely. The incident page still counted them under `parser`, in a footnote.
+  fits that only loosely. The desk counts these reports under `parser` too, where it files them
+  by tenant; until now they had no ticket of their own, only a footnote.
 
 ## Why one ticket hid them
 

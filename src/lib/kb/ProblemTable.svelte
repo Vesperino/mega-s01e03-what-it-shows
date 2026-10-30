@@ -1,32 +1,28 @@
 <script lang="ts">
   import reports from '#lib/data/reports-4471.json';
   import notes from '#lib/data/desk-notes.json';
-  import { exportRepeats, groupByProblem, type Problem } from '#lib/kb/problems';
+  import { groupByProblem, type Problem } from '#lib/kb/problems';
+  import { uniqueById, type Report } from '#lib/kb/causes';
   import { tenantOf } from '#lib/kb/locales';
-  import type { Report } from '#lib/kb/causes';
 
   // `tickets`: problem → link to the ticket that tracks it.
   let { ticket, tickets }: { ticket: number; tickets: Partial<Record<Problem, string>> } = $props();
 
-  const all = $derived((reports as Report[]).filter((r) => r.mergedInto === ticket));
-  const groups = $derived(groupByProblem(all, tenantOf, notes.oneDayMove));
-  const total = $derived(groups.reduce((n, g) => n + g.reports.length, 0));
-  const repeats = $derived(exportRepeats(all));
-  const channels = (g: { channels: Record<string, number> }) =>
-    Object.entries(g.channels)
+  const rows = $derived((reports as Report[]).filter((r) => r.mergedInto === ticket));
+  const merged = $derived(uniqueById(rows));
+  const groups = $derived(groupByProblem(merged, tenantOf, notes.oneDayMove));
+  // The export pages overlap, so a report can come twice.
+  const repeats = $derived(rows.length - merged.length);
+  const tally = (n: Record<string, number>) =>
+    Object.entries(n)
       .sort((a, b) => b[1] - a[1])
-      .map(([c, n]) => `${c} ×${n}`)
-      .join(' · ');
-  const tags = (g: { reports: Report[] }) =>
-    Object.entries(g.reports.reduce<Record<string, number>>((n, r) => ({ ...n, [r.meta.intakeTag]: (n[r.meta.intakeTag] ?? 0) + 1 }), {}))
-      .sort((a, b) => b[1] - a[1])
-      .map(([tag, n]) => `${tag} ×${n}`)
+      .map(([k, v]) => `${k} ×${v}`)
       .join(' · ');
   const issueNo = (url: string) => url.split('/').pop();
 </script>
 
 <p class="sum">
-  <strong>{total}</strong> reports merged into #{ticket} ·
+  <strong>{merged.length}</strong> reports merged into #{ticket} ·
   <strong>{groups.length}</strong>
   {groups.length === 1 ? 'problem' : 'problems'}
 </p>
@@ -41,8 +37,8 @@
       <tr class:untracked={!url}>
         <td><code>{g.problem}</code></td>
         <td>{g.reports.length}</td>
-        <td class="muted">{channels(g)}</td>
-        <td class="muted">{tags(g)}</td>
+        <td class="muted">{tally(g.channels)}</td>
+        <td class="muted">{tally(g.taggedAs)}</td>
         <td>{g.tenants}</td>
         <td>{g.firstSeen} → {g.lastSeen}</td>
         <td>{#if url}<a href={url}>#{issueNo(url)}</a>{:else}no ticket{/if}</td>
@@ -50,6 +46,13 @@
     {/each}
   </tbody>
 </table>
+
+{#each groups.filter((g) => g.alsoIn.length) as g (g.problem)}
+  <p class="muted">
+    The {g.reports.length} <code>{g.problem}</code> reports are also counted under
+    {#each g.alsoIn as c, i (c)}{i ? ', ' : ''}<code>{c}</code>{/each}, where the desk files them by tenant.
+  </p>
+{/each}
 
 {#if repeats}
   <p class="muted">The export repeats {repeats} of these reports across overlapping pages; each is counted once, by id.</p>

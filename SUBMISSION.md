@@ -4,9 +4,9 @@ Ticket #4471 merged 412 reports about dates as one known issue. Read by cause, i
 
 | problem | reports | ticket |
 |---|---|---|
-| `parser`: shared parser reads day-first tenants' dates month first | 374 | [#1](https://github.com/Vesperino/mega-s01e03-what-it-shows/issues/1) |
+| `parser`: shared parser reads day-first tenants' dates month first | 379 | [#1](https://github.com/Vesperino/mega-s01e03-what-it-shows/issues/1) |
 | `hint`: booking-v3 form hints `MM/DD/YYYY` to day-first tenants | 33 | [#2](https://github.com/Vesperino/mega-s01e03-what-it-shows/issues/2) |
-| `one-day`: dates shown one day early (time zone), not swapped | 5 | [#3](https://github.com/Vesperino/mega-s01e03-what-it-shows/issues/3) |
+| `one-day`: dates shown one day early (time zone), not swapped (also counted under `parser`, where the desk files them) | 5 | [#3](https://github.com/Vesperino/mega-s01e03-what-it-shows/issues/3) |
 
 ## The page
 
