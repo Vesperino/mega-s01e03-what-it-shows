@@ -1,0 +1,64 @@
+---
+layout: runbook
+title: '#4471 · what the merged ticket holds'
+owner: Arkadiusz Białecki
+status: open
+reviewed: 2026-10-30
+signature: 'v1.eyJzdWIiOiIzMjAxIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMzODI3ODQsImV4cCI6MTc5MzQ2OTE4NH0.ESXBnahbIinpbnqhCC9YUQ2MioUDehkpyxHCZ2DatWQ'
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/Vesperino/mega-s01e03-what-it-shows/issues';
+  const tickets = { parser: `${repo}/1`, hint: `${repo}/2`, 'one-day': `${repo}/3` };
+</script>
+
+[#4471](/kb/incidents/4471) was merged as one issue, "dates parse mm/dd in eu locales", and marked
+known. Read by cause instead of by subject line, its reports hold separate problems. Each one has
+its own fix, so each one now has its own ticket.
+
+<Callout kind="warn">
+Not one issue. Fixing the parser closes only the <code>parser</code> row below; the others stay open.
+</Callout>
+
+## The problems
+
+<ProblemTable ticket={4471} {tickets} />
+
+## What each one is
+
+- **`parser`**: the shared parser reads every date month first. Our tenants write the day first,
+  so day and month swap: a booking for 7 April arrives as 4 July. This is the bug #4471 names.
+- **`hint`**: booking-v3 prints `MM/DD/YYYY` under its date field. People at day-first tenants
+  type what the hint says, and the form reads it day first. Same symptom, different code: the fix
+  is the hint, not the parser. Only reports sent through that form at booking-v3 tenants.
+- **`one-day`**: the desk read these reports as a one-day move, not a swap, and listed them in
+  `desk-notes.json`: "Tuesday 12 May. Calendar says Monday 11 May", "Client in Lisbon got Tuesday.
+  Client in Toronto got Monday.", "Every booking in June is one day off." No day/month swap does
+  that. Our best guess is time zones; one report ("the invite arrived before I made the booking")
+  fits that only loosely. The incident page still counted them under `parser`, in a footnote.
+
+## Why one ticket hid them
+
+- **The merge rule.** [Decision 0001](/kb/decisions/0001-dedupe-by-subject) merges on the subject
+  line. Subjects name the symptom, not the cause: "Date is wrong" and "Month and day swapped?" turn
+  up under every problem above.
+- **The intake tag.** `meta.intakeTag` is a guess from the reporter's browser: every en-US browser
+  is tagged `hint`, every other one `parser`. The cause depends on the tenant, its booking form and
+  the channel (`causes.ts`), so the tag often disagrees with the problem (see "tagged as" above).
+  Don't count by it.
+- **The page said one thing, its table another.** The incident page's own table showed more than
+  one cause, and a footnote for the one-day moves, under a callout that said "one issue".
+
+## What changes
+
+- Track each problem in its own ticket (linked in the table) and close each with its own fix.
+- Merge by cause (tenant, booking form, channel), not by subject. Decision 0001 stays as written;
+  it needs a new record to replace it.
+- [Triage: duplicate reports](/kb/triage/dedupe) still teaches the subject rule and is stale.
+  Re-read it with the new record.
+
+<RenderStamp {signature} />
