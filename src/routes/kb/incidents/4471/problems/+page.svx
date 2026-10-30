@@ -14,6 +14,8 @@ signature: 'v1.eyJzdWIiOiIzMjAxIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpY
 
   const repo = 'https://github.com/Vesperino/mega-s01e03-what-it-shows/issues';
   const tickets = { parser: `${repo}/1`, hint: `${repo}/2`, 'one-day': `${repo}/3` };
+  // From engineering's update on #4471 (closed 5 October). A problem missing here is still open.
+  const status = { parser: 'fixed: fix(dates): parse dd/mm for eu locales', hint: "won't fix: booking-v3 form retired" };
 </script>
 
 [#4471](/kb/incidents/4471) was merged as one issue, "dates parse mm/dd in eu locales", and marked
@@ -21,12 +23,13 @@ known. Read by cause instead of by subject line, its reports hold separate probl
 its own fix, so each one now has its own ticket.
 
 <Callout kind="warn">
-Not one issue. Fixing the parser closes only the <code>parser</code> row below; the others stay open.
+Not one issue. Engineering closed #4471 on 5 October with the parser fixed and the booking-v3 form
+retired. The <code>one-day</code> moves had no fix in that update: their ticket stays open.
 </Callout>
 
 ## The problems
 
-<ProblemTable ticket={4471} {tickets} />
+<ProblemTable ticket={4471} {tickets} {status} />
 
 ## What each one is
 
@@ -56,7 +59,9 @@ Not one issue. Fixing the parser closes only the <code>parser</code> row below; 
 
 ## What changes
 
-- Track each problem in its own ticket (linked in the table) and close each with its own fix.
+- Track each problem in its own ticket (linked in the table) and close each with its own fix:
+  `parser` is closed as fixed, `hint` as won't fix (the form is gone), `one-day` stays open until
+  someone owns it.
 - Merge by cause (tenant, booking form, channel), not by subject. Decision 0001 stays as written;
   it needs a new record to replace it.
 - [Triage: duplicate reports](/kb/triage/dedupe) still teaches the subject rule and is stale.

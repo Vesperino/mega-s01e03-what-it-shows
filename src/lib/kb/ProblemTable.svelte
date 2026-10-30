@@ -5,8 +5,12 @@
   import { uniqueById, type Report } from '#lib/kb/causes';
   import { tenantOf } from '#lib/kb/locales';
 
-  // `tickets`: problem → link to the ticket that tracks it.
-  let { ticket, tickets }: { ticket: number; tickets: Partial<Record<Problem, string>> } = $props();
+  // `tickets`: problem → link to the ticket that tracks it. `status`: problem → where its fix stands.
+  let {
+    ticket,
+    tickets,
+    status = {},
+  }: { ticket: number; tickets: Partial<Record<Problem, string>>; status?: Partial<Record<Problem, string>> } = $props();
 
   const rows = $derived((reports as Report[]).filter((r) => r.mergedInto === ticket));
   const merged = $derived(uniqueById(rows));
@@ -29,7 +33,7 @@
 
 <table>
   <thead>
-    <tr><th>problem</th><th>reports</th><th>channels</th><th>tagged as</th><th>tenants</th><th>seen</th><th>ticket</th></tr>
+    <tr><th>problem</th><th>reports</th><th>channels</th><th>tagged as</th><th>tenants</th><th>seen</th><th>ticket</th><th>status</th></tr>
   </thead>
   <tbody>
     {#each groups as g (g.problem)}
@@ -42,6 +46,7 @@
         <td>{g.tenants}</td>
         <td>{g.firstSeen} → {g.lastSeen}</td>
         <td>{#if url}<a href={url}>#{issueNo(url)}</a>{:else}no ticket{/if}</td>
+        <td class:open={!status[g.problem]}>{status[g.problem] ?? 'open'}</td>
       </tr>
     {/each}
   </tbody>
@@ -63,4 +68,5 @@
   .muted { color: var(--muted); font-size: 0.85em; }
   .untracked td { background: var(--warn-bg); }
   .untracked td:last-child { color: var(--warn); font-weight: 600; }
+  .open { color: var(--warn); font-weight: 600; }
 </style>
